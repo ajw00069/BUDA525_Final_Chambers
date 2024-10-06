@@ -39,15 +39,21 @@ table(Credit$Gender) #193 male and 207 female - leaving here for reference
 table(Credit$Student) # 360 No; 40 Yes
 table(Credit$Married) # 155 No; 245 Yes
 table(Credit$Ethnicity) # 99 African American; 102 Asian; 199 Caucasian - leaving here for referenbce
-mod1<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity,data=Credit) #to see all values
+mod1<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity,data=Credit) #to see all values, ID not needed
 summary(mod1) #high pvalues for ID, education, genderFemale, MarriedYes, EthnicityAsian, EthnicityCauscasian - we will need to explore if there are discrepancies between these variables (i.e. more data about one gender than the otehr and between ethnicities)
-mod2<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Student+Married,data=Credit)
+mod2<-lm(Balance~Income+Limit+Rating+Cards+Age+Education+Student+Married,data=Credit)
 summary(mod2) #education and MarriedYes exceed 0.05 pvalue
-mod3<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Student,data=Credit)
+mod3<-lm(Balance~Income+Limit+Rating+Cards+Age+Student,data=Credit)
 summary(mod3)
 par(mfrow=c(2,2))
 plot(mod3) #heavy skey in Residuals vs Fitted; and something definitely does not look right in Scale-Location; Residuals vs Leverage looks ok I think?
-
+summary(mod3)
+par(mfrow=c(2,2))
+plot(mod3)
+mod4<-lm(log(Balance)~Income+Limit+Rating+Cards+Age+Student,data=Credit)  # I AM NOT GETTING THIS TO WORK - MAY NEED TO GET RID OF ANY 0 VALUES IN "Balance"??
+par(mfrow=c(2,2))
+plot(mod4)
+summary(Credit$Balance)
 
 ```
 
