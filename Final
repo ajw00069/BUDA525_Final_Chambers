@@ -1,0 +1,51 @@
+## Directions
+
+This is the final group project for BUDA 525.  Submit both the .Rmd and word document to the appropriate link on ecampus by 11:59 PM on Tuesday October 8, 2024.  There are 4 questions on this assignment.  The first two questions are discussion type questions which require no data analysis but do require substantial insights into the material that has been covered.  The final two questions are data analysis type questions which require you to analyze data and communicate relevant findings.  You should only show results in this document that are relevant to your discussions. Remember you can use ECHO=FALSE, and other R markdown arguments to present your code.  Since I have the .Rmd I can see all code that was not presented in the word document. 
+
+
+## Problem 3 (30 Points)
+
+Notes from youtube video: can you create these insights, how are the ethical contributions to be modeled. Tell him how we selected a model. Build and select models.
+
+In the `Credit` data in the `ISLR` package it contains 400 customers and information on their credit history.  For full information of the data look at the `help` file.  A company has approached us to better understand factors that influence the `Balance` variable which is average credit card balance in USD.  Using the information in the model discuss the influential factors, and discuss the factors you choose to put in the model.  Do you have any concerns about the use of certain variables in the model? Discuss how your model was created and any insights you can provide based on the results.  HINT:  Adding Gender and/or Ethnicity could be controversial or illegal in some uses of this this model you should discuss your decision on these variables and how it effects the organizations ability to use your model for prediction or inference.  
+
+PROBLEM 3: A company has approached us to better understand factors that influence the `Balance` variable which is average credit card balance in USD.  Using the information in the model discuss the influential factors, and discuss the factors you choose to put in the model.  Do you have any concerns about the use of certain variables in the model?
+ 
+ANSWER: Yes having ethnicity, gender, married or age could be discriminatory depending on the use of this model - especially if it leads to greater scrunity of a certain group. Also the same would go for education - this could be discriminatory in those that chose not to or were not able to afford to go pursue additional education and vice versa. Overall there are mnany factors here that could be deemed as discriminatory, especially if the company proceeds to use results including these variables as a way to limit credit or terminate their relationship with a certain group of customers or refuse to accept credit card applications from a certain group of potential customers - this understanding what influences balance has a lot of second and third order effects that could be illegel and very unethical. 
+
+Perhaps some ethical use of this data in regards to credit would be to determine how many credit cards ("cards") a person has or in attempting to predict income. There could be marketing potential for instance if there is a positive relationship between education level and number of credit cards, then it may be useful in a marketing context to try and promote students who are nearing graduation to try and get them to sign up for credit cards. 
+
+
+PROBLEM3: A company has approached us to better understand factors that influence the `Balance` variable which is average credit card balance in USD. Discuss how your model was created and any insights you can provide based on the results.  HINT:  Adding Gender and/or Ethnicity could be controversial or illegal in some uses of this this model you should discuss your decision on these variables and how it effects the organizations ability to use your model for prediction or inference. 
+
+Due to ethical/legal considerations we chose to not use ethnicity and gender in our model.  
+
+```{r}
+library(ISLR)
+head(Credit)
+help(Credit)
+nrow(Credit) #400
+Credit<-na.omit(Credit)
+nrow(Credit) #400
+summary(Credit)
+str(Credit) #gender, student, married, ethnicity - all factors; income is numericl remaining are all integers
+table(Credit$Cards) # see below
+#  1   2   3   4   5   6   7   8   9 
+# 51 115 111  72  34  11   4   1   1 
+table(Credit$Education) # see below
+# 5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
+# 1  5  8 14 25 24 33 37 38 48 49 50 34 22 10  2 
+table(Credit$Gender) #193 male and 207 female - leaving here for reference
+table(Credit$Student) # 360 No; 40 Yes
+table(Credit$Married) # 155 No; 245 Yes
+table(Credit$Ethnicity) # 99 African American; 102 Asian; 199 Caucasian - leaving here for referenbce
+mod1<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity,data=Credit) #to see all values
+summary(mod1) #high pvalues for ID, education, genderFemale, MarriedYes, EthnicityAsian, EthnicityCauscasian - we will need to explore if there are discrepancies between these variables (i.e. more data about one gender than the otehr and between ethnicities)
+mod2<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Student+Married,data=Credit)
+summary(mod2) #education and MarriedYes exceed 0.05 pvalue
+mod3<-lm(Balance)
+
+
+```
+
+
