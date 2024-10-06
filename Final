@@ -43,7 +43,10 @@ mod1<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Gender+Student+Marri
 summary(mod1) #high pvalues for ID, education, genderFemale, MarriedYes, EthnicityAsian, EthnicityCauscasian - we will need to explore if there are discrepancies between these variables (i.e. more data about one gender than the otehr and between ethnicities)
 mod2<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Education+Student+Married,data=Credit)
 summary(mod2) #education and MarriedYes exceed 0.05 pvalue
-mod3<-lm(Balance)
+mod3<-lm(Balance~ID+Income+Limit+Rating+Cards+Age+Student,data=Credit)
+summary(mod3)
+par(mfrow=c(2,2))
+plot(mod3) #heavy skey in Residuals vs Fitted; and something definitely does not look right in Scale-Location; Residuals vs Leverage looks ok I think?
 
 
 ```
