@@ -1,0 +1,86 @@
+---
+title: "BUDA 525 Final— Team Chambers"
+author: "Collin Edwards, Olga Ilyaguyeva, Adam Weisenstine"
+date: "10/07/2024"
+output: word_document
+---
+### Problem 3
+In the Credit data in the ISLR package it contains 400 customers and information on their credit history. For full information of the data look at the help file. A company has approached us to better understand factors that influence the Balance variable which is average credit card balance in USD. Using the information in the model, discuss the influential factors and discuss the factors you choose to put in the model. Do you have any concerns about the use of certain variables in the model? Discuss how your model was created and any insights you can provide based on the results. HINT: Adding Gender and/or Ethnicity could be controversial or illegal in some uses of this this model you should discuss your decision on these variables and how it effects the organizations ability to use your model for prediction or inference.
+```{r}
+library(ISLR)
+head(Credit)
+data("Credit")
+#Data Exploration
+help(Credit)
+dim(Credit)
+summary(Credit)
+```
+First we wanted to look at the data. There are 400 observations in this data collection, and there are 12 variables that are all connected to credit card balance details. We observed a wide variation between the min and max values for several variables, including `Income`, `Limit`, and `Balance`, based on the data summary. Next, our suggestion that in order to obtain a well-fitting linear model, we might need to alter these variables. Most of the observations are for non-students, and the data is around half male and half female. 
+```{r}
+par(mfrow=c(2,2))
+boxplot(Balance~Student, data=Credit)
+boxplot(Balance~Ethnicity, data=Credit)
+boxplot(Balance~Married, data=Credit)
+boxplot(Balance~Gender, data=Credit)
+par(mfrow=c(2,1))
+hist(Credit$Balance)
+plot(Credit$Balance)
+```
+
+When we looked at credit card balances, we noticed that students have higher median balances, while non-students show a wider range. This makes sense because students usually have limited income and might take longer to pay off debts. We believe the Student variable will be important in our model.
+
+Balances are pretty similar across different Ethnicity groups, which is good since including this might be controversial. We believe in doing data analysis ethically and don’t want to build a model that discriminates. So, we’re hoping not to use this variable.
+
+We also didn’t see big differences based on Married status or Gender. We don’t expect these to be important factors in our model, and we’d prefer not to include Gender for similar reasons as Ethnicity.
+
+Another thing we found is that the Balance variable has a lot of zeros. This might make it hard to build a good model, and we need to figure out how to transform `Balance`. Because of the zeros, we can’t use log transformations or Box-Cox analysis. We’ll come back to this later, but let’s start building the model now.
+### Problem 3 **Model Selection Process**
+```{r}
+m0<-lm(Balance~Income+Rating+Limit+Cards+Age+Education+Student+Married+Ethnicity+Gender, data = Credit)
+par(mfrow=c(2,2))
+plot(m0)
+Credit$newbalance<-Credit$Balance+.01
+summary(Credit[12:13])
+```
+We started by building a model with all the variables. We used the `lm()` function to build the model, and we used the `summary()` function to look at the results. We found that the model is significant, but the R-squared value is low. This means that the model doesn’t explain much of the variation in Balance. Right away, we observed notable curvature in our residuals plot. To address this issue, we wanted to apply the `boxCox()` transformation to Balance to see if it would improve our model.
+
+However, the presence of zero balances posed some limitations. To overcome this, we decided to increase all Balance observations by 0.01. This small adjustment allows us to leverage the necessary tools to build the best possible model, and we don’t anticipate that adding a penny will significantly alter the insights from the data. We created a new variable called `newbalance`, which is simply the current `Balance` plus $0.01. Now, we can use additional R tools to help us determine the optimal way to transform `newbalance`.
+```{r}
+m1<-lm(newbalance~Income+Rating+Limit+Cards+Age+Education+Student+Married+Ethnicity+Gender, data = Credit)
+summary(m1)
+par(mfrow=c(2,2))
+plot(m1)
+m1test<-step(m1)
+m1test
+```
+We begin by fitting a model that includes all available variables as predictors of `newbalance`. A preliminary examination of the model summary provides insights into how these variables influence the model. At the p < .05 significance level, we observe several variables with very low p-values. However, `Education`, `Married`, `Ethnicity`, and `Gender` have high p-values, indicating that they do not significantly affect the model.
+
+To refine the model, we will do a backward stepwise selection to determine whether these four variables should be removed. The results from this procedure suggest removing `Ethnicity`, `Education`, `Married`, and `Gender` from the model.
+
+With a more accurate model containing what we believe to be the most influential predictor variables, we can now review the model summary and consider appropriate transformations to further enhance the model's performance.
+```{r}
+m2<-lm(newbalance~Income+Rating+Limit+Cards+Age+Student, data = Credit)
+summary(m2)
+par(mfrow=c(2,2))
+plot(m2)
+```
+After removing `Ethnicity`, `Education`, `Married`, and `Gender`, we refit the model with the remaining variables: `Income`, `Rating`, `Limit`, `Cards`, `Age`, and `Student`. The summary of the updated model shows that all variables are statistically significant with p-values below the 0.05 threshold. The residuals plot shows improvement, although there is still some minor curvature, suggesting further transformations may be necessary.
+```{r}
+m3<-lm(sqrt(newbalance)~sqrt(Income)+sqrt(Rating)+sqrt(Limit)+sqrt(Cards)+Age+Student, data = Credit)
+summary(m3)
+par(mfrow=c(2,2))
+plot(m3)
+```
+To address the remaining curvature in the residuals plot, we applied a square root transformation to `newbalance`, `Income`, `Rating`, `Limit`, and `Cards`. The updated model summary shows that all variables are statistically significant with p-values below the 0.05 threshold. The residuals plot shows improvement, with less curvature than the previous model. The R-squared value has increased, indicating that the model explains more of the variation in `newbalance`. We believe this model is the best fit for the data and provides valuable insights into the factors that influence credit card balances. Now we will focus on handling those zero balances...
+```{r}
+Credit$Balance[Credit$Balance == 0] <- NA
+Credit2 <- na.omit(Credit)
+m4<-lm(Balance~Income+Rating+Limit+Cards+Age+Student, data = Credit2)
+summary(m4)
+par(mfrow=c(2,2))
+plot(m4)
+```
+By removing the zero balances, our model greatly improved. The residual plots showed no signs of curvature, and the Normal Q-Q plot shows that the model fits well, even in the tails of the distribution. All predictor variables remained significant, confirming that `Income`, `Rating`, `Limit`, `Cards`, `Age`, and `Student` are important factors in predicting an individual’s credit card balance.
+
+### Problem 3 Conclusions and Recommended Pathforward
+In conclusion, our final model (m4) indicates that `Income`, `Rating`, `Limit`, `Cards`, `Age`, and `Student` status are significant predictors of an individual’s credit balance. By excluding variables like Gender and Ethnicity, we avoided potential ethical or legal concerns related to discrimination in predictive modeling. Additionally, removing the zero-balance observations improved the model’s fit and predictive power, making this the most reliable model for understanding and predicting credit card balances in this dataset.
