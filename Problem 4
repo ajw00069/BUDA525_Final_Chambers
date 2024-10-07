@@ -1,0 +1,97 @@
+## Problem 4 (30 Points)
+
+The `Salaries` data in the `carData` package contains information on academic salaries in 2008 and 2009 in a college in the US. A data dictionary can be found in the `help` file for the data. This data was collected as part of an on-going effort of the college to monitor salary differences between male and female faculty members.  
+
+We have been asked to investigate the gender gap in the data, but also what other information that may be relevant to administrators (i.e. salary growth for years of service, discipline based growth, etc).  
+
+Investigate if there is a gender gap, but also provide insights on other drivers that you may see of salary in the data.  Is your model suitable to make offers based on the information provided?  Explain your reasoning.  Provide insights into any other information you find of interest. 
+
+
+
+```{r}
+library(carData)
+help(Salaries)
+head(Salaries)
+summary(Salaries)
+table(Salaries$rank)
+#   AsstProf AssocProf      Prof 
+#       67        64       266 
+table(Salaries$discipline)
+#   A   B 
+#  181 216 
+table(Salaries$sex)
+# Female   Male 
+#   39    358 
+table(Salaries$rank,Salaries$sex)
+#             Female Male
+#  AsstProf      11   56
+#  AssocProf     10   54
+#  Prof          18  248
+
+table(Salaries$discipline,Salaries$sex)
+#        Female Male
+#    A     18  163
+#    B     21  195
+
+```
+We wanted to view the data to see if there was any skew of reported data for different variable types across rank, discipline, and sex - below is a quick summary of our observatios
+
+Looking at the table for Salaries$rank - there is are far more Prof ranks than there are the other two (the other two ranks are almost equal)
+
+Looking at the table for Salaries$discipline - the two are not equal, but the disparity is not too great to impede us from moving forward
+
+Looking at the table of Salaries$sex - there is a disparity in data collected for gender, there are 39 datapoints for Female, and 358 for Male. 
+
+In comparing the values of rank to sex we see there are far more males in all the ranks compared to females. Both genders have the most at the Prof rank however we will need to be mindful of how this distribution of the data among these ranks can skew our results and observations
+
+In comparing the values of dispcline to sex we see there are far more males in both type A and B. Among just the genders, the number of females in A or B and males in A or B is not as large of a difference (though male has about a 32 number difference between A and B - it is something to be mindful of)
+ 
+
+Now we want to visualize the relationships in order to see if there are any patterns in salary differences across the sex and the factors below. Much of these visual observations below match what was seen in the numerical data results.
+
+It also appears there is somewhat of a positive correlation with salary and years of service, as well as salary and years since PHD - but there is a decent amount of variability indicating these factors are not always able to best explain salary levels. 
+
+
+```{r}
+boxplot(salary~sex,data=Salaries,main="Salary / Gender")
+boxplot(salary~rank,data=Salaries,main="Salary / Rank")
+boxplot(salary~discipline,data=Salaries,main="Salary / Discipline")
+plot(Salaries$yrs.service,Salaries$salary,main="Years of Service / Salary")
+plot(Salaries$yrs.since.phd,Salaries$salary,main="Years Since PHD / Salary")
+
+```
+
+Overall - we are seeing that the median salary for males is higher than that of females which could indicate a gender paygap - however some of this could be explained that males mostly hold higher ranking positions with higher pay (compared to the other two ranks, almost about 5 times that of the lower two ranks each, not combined)
+
+```{r}
+mod1<-lm(salary~rank+discipline+yrs.since.phd+yrs.service+sex,data=Salaries)
+summary(mod1)
+
+```
+---
+Call:
+lm(formula = salary ~ rank + discipline + yrs.since.phd + yrs.service + 
+    sex, data = Salaries)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-65248 -13211  -1775  10384  99592 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    65955.2     4588.6  14.374  < 2e-16 ***
+rankAssocProf  12907.6     4145.3   3.114  0.00198 ** 
+rankProf       45066.0     4237.5  10.635  < 2e-16 ***
+disciplineB    14417.6     2342.9   6.154 1.88e-09 ***
+yrs.since.phd    535.1      241.0   2.220  0.02698 *  
+yrs.service     -489.5      211.9  -2.310  0.02143 *  
+sexMale         4783.5     3858.7   1.240  0.21584    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 22540 on 390 degrees of freedom
+Multiple R-squared:  0.4547,	Adjusted R-squared:  0.4463 
+F-statistic:  54.2 on 6 and 390 DF,  p-value: < 2.2e-16
+---
+
+It appears there are good to strong p values for almost everything except sexMale.
