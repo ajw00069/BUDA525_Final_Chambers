@@ -33,6 +33,30 @@ table(Salaries$discipline,Salaries$sex)
 #    A     18  163
 #    B     21  195
 
+tapply(yrs.since.phd,sex,summary)
+#Female
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   2.00   10.00   17.00   16.51   23.50   39.00 
+#Male
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   1.00   12.00   22.00   22.95   33.00   56.00 
+
+tapply(yrs.service,sex,summary)
+#Female
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   0.00    4.00   10.00   11.56   17.50   36.00 
+#Male
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   0.00    7.00   18.00   18.27   27.00   60.00
+
+tapply(salary,sex,summary)
+#Female
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  62884   77250  103750  101002  117003  161101 
+#Male
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  57800   92000  108043  115090  134864  231545 
+
 ```
 We wanted to view the data to see if there was any skew of reported data for different variable types across rank, discipline, and sex - below is a quick summary of our observatios
 
@@ -40,7 +64,7 @@ Looking at the table for Salaries$rank - there is are far more Prof ranks than t
 
 Looking at the table for Salaries$discipline - the two are not equal, but the disparity is not too great to impede us from moving forward
 
-Looking at the table of Salaries$sex - there is a disparity in data collected for gender, there are 39 datapoints for Female, and 358 for Male. 
+Looking at the table of Salaries$sex - there is a disparity in data collected for gender, there are 39 datapoints for Female, and 358 for Male. Addtionally, the maximum values for the female datapoints are much less than the maximum values for male datapoints, which is a factor that would need to be taken into consideration.
 
 In comparing the values of rank to sex we see there are far more males in all the ranks compared to females. Both genders have the most at the Prof rank however we will need to be mindful of how this distribution of the data among these ranks can skew our results and observations
 
@@ -162,4 +186,4 @@ Multiple R-squared:  0.5159,	Adjusted R-squared:  0.5122
 F-statistic: 139.6 on 3 and 393 DF,  p-value: < 2.2e-16
 ---
 
-In removing the sex variable, our R-square value is slightly lower at .5159 compared to mod2, however all variables are belwo 
+In removing the sex variable, our R-square value is slightly lower at .5159 compared to mod2, however all variables are below the .05 p-value threshold showing they are all significant.
