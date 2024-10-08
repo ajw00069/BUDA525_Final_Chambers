@@ -66,6 +66,8 @@ Overall - we are seeing that the median salary for males is higher than that of 
 ```{r}
 mod1<-lm(salary~rank+discipline+yrs.since.phd+yrs.service+sex,data=Salaries)
 summary(mod1)
+par(mfrow=c(2,2))
+plot(mod1)
 
 ```
 ---
