@@ -97,3 +97,69 @@ F-statistic:  54.2 on 6 and 390 DF,  p-value: < 2.2e-16
 ---
 
 It appears there are good to strong p values for almost everything except sexMale.
+
+Due to some of the extremes in our 2 by 2 plots, we will utilize log(salary) for our model moving forward.
+
+```{r}
+mod2<-lm(log(salary)~rank+discipline+sex,data=Salaries)
+summary(mod2)
+par(mfrow=c(2,2))
+plot(mod2)
+
+```
+
+---
+
+Call:
+lm(formula = log(salary) ~ rank + discipline + sex, data = Salaries)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.69880 -0.10872 -0.00588  0.09516  0.56965 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   11.17677    0.03590 311.329  < 2e-16 ***
+rankAssocProf  0.15023    0.03175   4.732 3.10e-06 ***
+rankProf       0.44584    0.02512  17.747  < 2e-16 ***
+disciplineB    0.12992    0.01841   7.059 7.69e-12 ***
+sexMale        0.04093    0.03095   1.322    0.187    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.1815 on 392 degrees of freedom
+Multiple R-squared:  0.518,	Adjusted R-squared:  0.5131 
+F-statistic: 105.3 on 4 and 392 DF,  p-value: < 2.2e-16
+
+---
+
+In eliminating 'years of service' and 'years since PHD' our R-squared value improves from .4547 to .518. However, sexMale still has a pvalue above 0.05 indicating it is not as big of a factor in salary value compared to the other variables here.
+
+
+```{r}
+modNoSex<-lm(log(salary)~rank+discipline,data=Salaries)
+summary(modNoSex)
+```
+---
+Call:
+lm(formula = log(salary) ~ rank + discipline, data = Salaries)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.69579 -0.11128 -0.00407  0.09423  0.57267 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   11.21068    0.02515 445.720  < 2e-16 ***
+rankAssocProf  0.15058    0.03177   4.739 3.01e-06 ***
+rankProf       0.44986    0.02496  18.021  < 2e-16 ***
+disciplineB    0.13040    0.01842   7.079 6.72e-12 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.1817 on 393 degrees of freedom
+Multiple R-squared:  0.5159,	Adjusted R-squared:  0.5122 
+F-statistic: 139.6 on 3 and 393 DF,  p-value: < 2.2e-16
+---
+
+In removing the sex variable, our R-square value is slightly lower at .5159 compared to mod2, however all variables are belwo 
