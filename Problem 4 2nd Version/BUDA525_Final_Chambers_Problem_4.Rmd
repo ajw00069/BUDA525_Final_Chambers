@@ -1,0 +1,91 @@
+---
+title: "BUDA 525 Final— Team Chambers"
+author: "Collin Edwards, Olga Ilyaguyeva, Adam Weisenstine"
+date: "10/08/2024"
+output: word_document
+---
+### Problem 4
+We are exploring a dataset called `Salaries` from the `carData` package. This dataset contains information about academic salaries from a college in the U.S. during 2008 and 2009. Our goal is to find out if there is a gender pay gap and what other factors might affect salaries.
+```{r}
+#first, we load the data and see what`s inside:
+
+library(carData)
+data("Salaries")
+summary(Salaries)
+```
+The dataset contains 397 observations and 6 variables. The variables are: `rank`, `discipline`, `yrs.since.phd`, `yrs.service`, `sex`, and `salary`. The `salary` variable is the response variable, and the rest are predictors. We will use the `lm()` function to fit a linear model to the data and then use the `summary()` function to get the results. Right from the beginning we can also see that we can notice that:
+Less than 10% of the faculty are female.
+Over 60% are full professors.
+Salaries range from around $58,000 to $231,545.
+## Model 1: Salary Differences
+```{r}
+boxplot(salary ~ sex, data = Salaries, 
+        main = "Salary by Gender", 
+        ylab = "Salary in USD", 
+        col = c("pink", "blue"))
+legend("topleft", fill = c("blue", "pink"), legend = c("Male", "Female"))
+```
+We wanted to a create boxplots to compare salaries between males and females and we also went with the color blue for males and pink for females to make it more visually appealing. This plot shows that males have a slightly higher median salary than females.
+## Model 2: Rank Differences
+```{r}
+boxplot(salary ~ sex + rank, data = Salaries, 
+        at = c(1,2,4,5,7,8),
+        names = c("AsstProf", "", "AssocProf", "", "Prof", ""),
+        main = "Salary by Rank and Gender", 
+        ylab = "Salary in USD", 
+        col = c("pink", "blue"))
+legend("topleft", fill = c("blue", "pink"), legend = c("Male", "Female"))
+```
+When we account for rank, the salary differences between genders become smaller. This suggests that rank plays a significant role in salary differences. We can see that full professors have the highest salaries, followed by associate professors and assistant professors.
+## Model 3: Building the Linear Model
+**Now we want to see how different factors affect salary. We'll build a linear model using the main variables:** `sex`, `rank`, `yrs.service`, and `discipline`.
+```{r}
+model <- lm(salary ~ sex + rank + yrs.service + discipline, data = Salaries)
+summary(model)
+```
+The results show that the coefficients for `sex` and `rank` are statistically significant. We can also note that when interpreting the model:
+
+**Rank and discipline are significant predictors of salary.**
+**Years of Service has a negative coefficient, which is unexpected.**
+**Gender (sex) is not a significant predictor when accounting for other factors.**
+## Transforming the Data for Better Results
+We notice that the model's errors are not spread out evenly. To fix this, we transform the salary by taking its inverse (1 divided by salary)
+```{r}
+model_transformed <- lm(I(1 / salary) ~ sex + rank + yrs.service + discipline, data = Salaries)
+summary(model_transformed)
+```
+The transformed model shows that the coefficients for `sex` and `rank` are still statistically significant. This transformation also improves the model's performance and makes the errors more evenly spread. The transformed model has a better fit, as the residuals are more evenly spread out.
+## Checking for Interactions
+We want to see if there are any interactions between the predictors. We'll add interaction terms to the model and check the results.
+```{r}
+model_interaction <- lm(I(1 / salary) ~ sex * discipline + rank + yrs.service, data = Salaries)
+summary(model_interaction)
+```
+The interaction between sex and discipline is **not significant**, so we don't include it in our final model.
+### The Final Model 
+Our final model uses the transformed salary and includes the main factors: `sex`, `rank`, `yrs.service`, and `discipline`.
+```{r}
+final_model <- lm(I(1 / salary) ~ sex + rank + yrs.service + discipline, data = Salaries)
+summary(final_model)
+```
+The final model shows that `rank` and `discipline` are significant predictors of salary. The model also shows that `sex` is not a significant predictor when accounting for other factors. Among other things some of the key factors we found are:
+**Rank: Higher rank leads to higher salary.**
+**Discipline: Faculty in applied disciplines (B) earn more than those in theoretical disciplines (A).**
+**Years of Service: Has a small negative effect, which may need further investigation.**
+**Gender: Not a significant factor when considering other variables.**
+### Conclusion
+
+Our analysis suggests that there is no significant gender pay gap when we account for rank, discipline, and years of service. Rank and discipline are the most important factors in determining salary.
+
+Is the Model Suitable for Making Salary Offers?
+
+**No, the model should not be used to make salary offers because:**
+Using Gender: It's illegal and unethical to use gender in salary decisions.
+Limited Factors: The model doesn't include other important factors like performance, grants, or experience.
+Explained Variance: The model only explains about 56% of the salary variation, so it's not very precise.
+In conclusion, while our model provides insights into salary determinants, it's not suitable for making salary offers. Employers should consider a wider range of factors when determining salaries.
+**Recommendations**
+
+Monitor Salaries: Continue to watch for any gender disparities, especially within the same rank and discipline.
+Focus on Key Factors: Use rank and discipline as primary factors in salary decisions.
+Improve the Model: Consider adding more variables like performance metrics to make a better model.
